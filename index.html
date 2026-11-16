@@ -6,7 +6,231 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#f2f2ee;--mute:#9aa3ad;--red:#e4322b;--yel:#ffd23f;--panel:rgba(14,17,22,.82);color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highli<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grande Prêmio da Serra</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#f2f2ee;--mute:#9aa3ad;--red:#e4322b;--yel:#ffd23f;--panel:rgba(14,17,22,.82);color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:none}
+html,body{margin:0;height:100%;background:#3d7a38;overflow:hidden;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;color:var(--ink)}
+canvas#g{position:fixed;inset:0;width:100%;height:100%}
+.hud{position:fixed;background:var(--panel);border-radius:6px;padding:8px 10px;font-size:17px;line-height:1.25}
+#std{left:max(8px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));min-width:130px}
+#std div{display:flex;gap:8px;align-items:center}#std i{width:10px;height:10px;border-radius:2px}#std .me{color:var(--yel);font-weight:700}
+#mm{right:max(8px,env(safe-area-inset-right,0px));top:max(8px,env(safe-area-inset-top,0px));padding:4px}
+#mm canvas{display:block;width:120px;height:92px}
+#info{left:50%;transform:translateX(-50%);top:max(8px,env(safe-area-inset-top,0px));text-align:center;font-size:19px;white-space:nowrap}
+#info b{font-size:30px;display:block;line-height:1}
+#cd{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:30vmin;font-weight:700;text-shadow:0 4px 20px #000;pointer-events:none}
+#ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,12,16,.78);padding:16px}
+#box{width:min(420px,100%);background:#1a1f26;border-top:6px solid var(--red);border-radius:6px;padding:20px}
+h1{margin:0 0 4px;font-size:38px;line-height:1}
+#sub{color:var(--mute);margin:0 0 14px;font-size:18px}
+.row{margin:10px 0 4px;color:var(--mute);font-size:16px}
+.seg{display:flex;gap:6px}
+#track{width:100%;font:inherit;font-size:19px;color:var(--ink);background:#2a313b;border:2px solid #48515e;border-radius:5px;padding:10px}
+.seg button,#go{font:inherit;font-size:20px;font-weight:700;color:var(--ink);background:#2a313b;border:2px solid transparent;border-radius:5px;padding:9px 0;flex:1;cursor:pointer}
+.seg button.on{border-color:var(--yel);color:var(--yel)}
+#go{width:100%;margin-top:16px;background:var(--red);font-size:24px;padding:12px}
+#res{margin:8px 0 0;font-size:19px}#res div{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #2a313b}
+#res .me{color:var(--yel);font-weight:700}
+#help{color:var(--mute);font-size:15px;margin-top:12px}
+#tc{position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom,0px));display:none;justify-content:space-between;padding:0 12px;pointer-events:none}
+#tc div{display:flex;gap:10px}
+#tc button{pointer-events:auto;font:inherit;font-weight:700;font-size:22px;color:var(--ink);background:rgba(14,17,22,.6);border:2px solid rgba(255,255,255,.35);border-radius:50%;width:74px;height:74px}
+#tc button.w{border-radius:14px;width:92px}
+#tc button:active,#tc button.p{background:var(--red)}
+@media (pointer:coarse){#tc{display:flex}#help{display:none}}
+@media (max-width:520px){#info{top:auto;bottom:100px}#std{font-size:15px;min-width:110px}}
+</style></head><body>
+<canvas id="g"></canvas>
+<div class="hud" id="std"></div>
+<div class="hud" id="mm"><canvas id="m" width="240" height="184"></canvas></div>
+<div class="hud" id="info"><b id="spd">0</b>km/h · Volta <span id="lap">1/3</span><br>Tempo <span id="tm">0:00.000</span> · Recorde <span id="bs">—</span></div>
+<div id="cd"></div>
+<div id="tc">
+ <div><button id="bl">◀</button><button id="br">▶</button></div>
+ <div><button class="w" id="bb">Freio</button><button class="w" id="ba">Acelerar</button></div>
+</div>
+<div id="ov"><div id="box">
+ <h1 id="ttl">Autódromo da Serra</h1><p id="sub">Largue em 4º e vença 5 rivais.</p>
+ <div class="row">Pista</div><select id="track" aria-label="Escolher pista"><option value="serra">Autódromo da Serra</option><option value="interlagos">Interlagos — Brasil</option><option value="monza">Monza — Itália</option><option value="silverstone">Silverstone — Inglaterra</option><option value="spa">Spa-Francorchamps — Bélgica</option></select>
+ <div class="row">Dificuldade</div><div class="seg" id="sd"><button>Fácil</button><button>Médio</button><button>Difícil</button></div>
+ <div class="row">Voltas</div><div class="seg" id="sl"><button>3</button><button>5</button><button>8</button></div>
+ <div id="res"></div>
+ <button id="go">Largar</button>
+ <div id="help">Setas ou WASD para dirigir · M liga/desliga o som. A grama reduz muito a velocidade: freie antes das curvas.</div>
+</div></div>
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('g'),ctx=cv.getContext('2d'),mm=$('m'),mx=mm.getContext('2d');
+const DS=10,W=96;let N=0,C=[],ang=[],c0=[],cm=[],road=null,bx0=0,bx1=0,by0=0,by1=0;
+const TRACKS={
+ serra:{name:'Autódromo da Serra',points:[[0,0],[600,-40],[1100,60],[1450,350],[1350,700],[900,820],[700,600],[400,700],[100,950],[-350,900],[-600,500],[-450,100]]},
+ interlagos:{name:'Interlagos — Brasil',points:[[0,0],[260,-180],[620,-160],[850,40],[780,260],[520,300],[400,130],[180,250],[-80,390],[-420,300],[-520,40],[-300,-80]]},
+ monza:{name:'Monza — Itália',points:[[0,0],[520,-30],[920,40],[1120,220],[980,390],[650,370],[420,250],[150,300],[-180,260],[-360,80],[-220,-100],[100,-130]]},
+ silverstone:{name:'Silverstone — Inglaterra',points:[[0,0],[280,-180],[620,-120],[760,100],[1050,170],[900,420],[580,500],[420,300],[160,420],[-120,300],[-280,80],[-180,-130]]},
+ spa:{name:'Spa-Francorchamps — Bélgica',points:[[0,0],[180,-260],[520,-340],[760,-120],[1080,-60],[1180,220],[900,470],[620,390],[420,650],[80,580],[-180,340],[-320,100]]}
+};
+let currentTrack='serra';
+function buildTrack(){
+ const pts=TRACKS[currentTrack].points;C=[];let dense=[];
+ const n=pts.length;
+ for(let i=0;i<n;i++){const p0=pts[(i+n-1)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+  for(let k=0;k<40;k++){const t=k/40,t2=t*t,t3=t2*t;
+   const f=(a,b,c,d)=>.5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3);
+   dense.push([f(p0[0],p1[0],p2[0],p3[0]),f(p0[1],p1[1],p2[1],p3[1])]);}}
+ let L=0;const cum=[0],m=dense.length;
+ for(let i=1;i<=m;i++){const a=dense[i-1],b=dense[i%m];L+=Math.hypot(b[0]-a[0],b[1]-a[1]);cum.push(L);}
+ N=Math.max(1,Math.round(L/DS));const step=L/N;let j=0;
+ for(let i=0;i<N;i++){const d=i*step;while(j<m-1&&cum[j+1]<d)j++;const a=dense[j],b=dense[(j+1)%m],u=(d-cum[j])/(cum[j+1]-cum[j]);C.push([a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u]);}
+ ang=C.map((_,i)=>{const a=C[(i+N-1)%N],b=C[(i+1)%N];return Math.atan2(b[1]-a[1],b[0]-a[0])});
+ c0=ang.map((_,i)=>Math.abs(wr(ang[(i+4)%N]-ang[(i-4+N)%N]))/(8*DS));
+ cm=c0.map((_,i)=>{let m=0;for(let k=0;k<12;k++)m=Math.max(m,c0[(i+k)%N]);return m});
+ road=new Path2D();C.forEach((p,i)=>i?road.lineTo(p[0],p[1]):road.moveTo(p[0],p[1]));road.closePath();
+ bx0=1e9;bx1=-1e9;by0=1e9;by1=-1e9;C.forEach(p=>{bx0=Math.min(bx0,p[0]);bx1=Math.max(bx1,p[0]);by0=Math.min(by0,p[1]);by1=Math.max(by1,p[1])});
+}
+const wr=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a};
+function at(s){s=((s%N)+N)%N;const i=Math.floor(s),f=s-i,a=C[i],b=C[(i+1)%N];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,ang[i]+wr(ang[(i+1)%N]-ang[i])*f]}
+buildTrack();
+const NAMES=['Silva','Moreira','Duarte','Lima','Costa'],COLS=['#2f6fed','#f2f2ee','#2fb36b','#ff8a1f','#9b5de5'];
+const DIFF=[.8,.9,1],DN=['Fácil','Médio','Difícil'];
+let cfg={d:1,laps:3},state='menu',cars=[],P=null,raceT=0,cdT=0,lapStart=0,prevLap=-1,best=null,endT=0,hudT=0;
+function bestKey(){return currentTrack==='serra'?'gp-serra-best':'gp-best-'+currentTrack}
+function loadBest(){try{best=parseFloat(localStorage.getItem(bestKey()))||null}catch(e){best=null}}
+loadBest();
+const keys={u:0,d:0,l:0,r:0};
+const fmt=t=>{if(t==null)return'—';const m=Math.floor(t/60),s=t-m*60;return m+':'+(s<10?'0':'')+s.toFixed(3)};
+
+function setup(){
+ cars=[];let ri=0;
+ for(let slot=0;slot<6;slot++){
+  const s=N-3-slot*5,off=slot%2?16:-16,[x,y,a]=at(s);
+  const c={total:s-N,v:0,off,fin:null,x:x-Math.sin(a)*off,y:y+Math.cos(a)*off,a};
+  if(slot==3){Object.assign(c,{player:1,name:'Você',color:'#e4322b',idx:Math.round(s)%N});P=c}
+  else{Object.assign(c,{name:NAMES[ri],color:COLS[ri],mult:.95+Math.random()*.07,w:Math.random()*6});ri++}
+  cars.push(c);
+ }
+ raceT=0;prevLap=-1;lapStart=0;endT=0;
+}
+function rank(){return cars.slice().sort((a,b)=>(a.fin!=null&&b.fin!=null)?a.fin-b.fin:a.fin!=null?-1:b.fin!=null?1:b.total-a.total)}
+
+function update(dt){
+ const locked=state=='count',tot=cfg.laps*N;
+ if(!locked&&state!='menu')raceT+=dt;
+ // player
+ if(P){
+  let best2=1e18,bj=P.idx;
+  for(let k=-25;k<=25;k++){const j=(P.idx+k+N)%N,d=(C[j][0]-P.x)**2+(C[j][1]-P.y)**2;if(d<best2){best2=d;bj=j}}
+  let dl=bj-P.idx;if(dl>N/2)dl-=N;if(dl<-N/2)dl+=N;P.total+=dl;P.idx=bj;
+  const off=Math.sqrt(best2)>W/2+4;P.off2=off;
+  const ctl=!locked&&P.fin==null&&state=='race';
+  if(ctl){
+   if(keys.u)P.v+=(off?120:240)*dt;else P.v-=(60+P.v*.25)*dt;
+   if(keys.d)P.v-=520*dt;
+  }else P.v-=(120+P.v*.5)*dt;
+  const vm=off?130:420;if(P.v>vm)P.v-=(P.v-vm)*Math.min(1,3*dt);
+  P.v=Math.max(0,P.v);
+  const st=ctl?keys.r-keys.l:0;
+  P.a+=st*2.6*Math.min(1,P.v/110)*(1-.4*P.v/420)*dt;
+  P.x+=Math.cos(P.a)*P.v*dt;P.y+=Math.sin(P.a)*P.v*dt;
+  if(P.fin==null&&P.total>=tot){P.fin=raceT;endT=1.4}
+  const ln=Math.floor(P.total/N);
+  if(ln>prevLap){if(ln>=1){const lt=raceT-lapStart;if(!best||lt<best){best=lt;try{localStorage.setItem(bestKey(),lt)}catch(e){}}}
+   if(ln>=0)lapStart=raceT;prevLap=ln}
+ }
+ // rivals
+ for(const r of cars){if(r.player)continue;
+  if(!locked&&state!='menu'){
+   const i=((Math.floor(r.total)%N)+N)%N,tv=410*DIFF[cfg.d]*r.mult/(1+cm[i]*70);
+   r.v+=(tv-r.v)*Math.min(1,1.6*dt);r.total+=r.v*dt/DS;
+   if(r.fin==null&&r.total>=tot)r.fin=raceT;
+  }
+  const [x,y,a]=at(r.total);r.a=a;r.x=x-Math.sin(a)*r.off;r.y=y+Math.cos(a)*r.off;
+  if(P){const dx=P.x-r.x,dy=P.y-r.y,d=Math.hypot(dx,dy);if(d<30&&d>.1){P.x+=dx/d*(30-d)*.6;P.y+=dy/d*(30-d)*.6;P.v*=.985}}
+ }
+ if(state=='count'||(state=='race'&&cdT>-.8)){cdT-=dt;$('cd').style.display='flex';$('cd').textContent=cdT>0?Math.ceil(cdT):'Vai!';
+  if(state=='count'&&cdT<=0)state='race';
+  if(cdT<=-.8)$('cd').style.display='none'}
+ if(P&&P.fin!=null&&state=='race'){endT-=dt;if(endT<=0)finish()}
+}
+function carDraw(c){
+ ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.a);
+ ctx.fillStyle='#111';[[-9,-11],[-9,6],[8,-11],[8,6]].forEach(w=>ctx.fillRect(w[0],w[1],9,5));
+ ctx.fillStyle=c.color;ctx.fillRect(-19,-9,4,18);ctx.fillRect(15,-10,4,20);
+ ctx.fillRect(-14,-4,26,8);ctx.beginPath();ctx.moveTo(12,-4);ctx.lineTo(19,-1.5);ctx.lineTo(19,1.5);ctx.lineTo(12,4);ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-2,0,3.2,0,7);ctx.fill();
+ ctx.restore();
+}
+function draw(){
+ const w=cv.width,h=cv.height,rt=cv.width/innerWidth,z=Math.max(.6,Math.min(1,Math.min(innerWidth,innerHeight)/700))*rt;
+ ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#3d7a38';ctx.fillRect(0,0,w,h);
+ const cx=P?P.x:0,cy=P?P.y:0;
+ ctx.setTransform(z,0,0,z,w/2-cx*z,h/2-cy*z);
+ ctx.lineJoin='round';ctx.setLineDash([]);
+ ctx.lineWidth=W+18;ctx.strokeStyle='#e4322b';ctx.stroke(road);
+ ctx.setLineDash([16,16]);ctx.strokeStyle='#f2f2ee';ctx.stroke(road);
+ ctx.setLineDash([]);ctx.lineWidth=W;ctx.strokeStyle='#2b2f36';ctx.stroke(road);
+ ctx.setLineDash([18,22]);ctx.lineWidth=2;ctx.strokeStyle='rgba(255,255,255,.2)';ctx.stroke(road);ctx.setLineDash([]);
+ const [sx,sy,sa]=at(0);ctx.save();ctx.translate(sx,sy);ctx.rotate(sa);
+ for(let i=0;i<12;i++){for(let j=0;j<2;j++){ctx.fillStyle=(i+j)%2?'#111':'#f2f2ee';ctx.fillRect(j*6-6,-W/2+i*(W/12),6,W/12)}}
+ ctx.restore();
+ cars.slice().sort((a,b)=>a.player?1:b.player?-1:0).forEach(carDraw);
+ // minimap
+ mx.setTransform(1,0,0,1,0,0);mx.clearRect(0,0,240,184);
+ const sc=Math.min(224/(bx1-bx0),168/(by1-by0)),ox=8-bx0*sc+(224-(bx1-bx0)*sc)/2,oy=8-by0*sc+(168-(by1-by0)*sc)/2;
+ mx.setTransform(sc,0,0,sc,ox,oy);mx.lineWidth=14/sc;mx.lineJoin='round';mx.strokeStyle='#5b6573';mx.stroke(road);
+ cars.forEach(c=>{mx.fillStyle=c.player?'#ffd23f':c.color;mx.beginPath();mx.arc(c.x,c.y,(c.player?9:6)/sc,0,7);mx.fill()});
+}
+function hud(){
+ const r=rank();
+ $('std').innerHTML=r.map((c,i)=>`<div class="${c.player?'me':''}"><span>${i+1}</span><i style="background:${c.color}"></i>${c.name}</div>`).join('');
+ const ln=Math.max(0,Math.min(cfg.laps-1,Math.floor(P.total/N)));
+ $('lap').textContent=(ln+1)+'/'+cfg.laps;$('spd').textContent=Math.round(P.v*.72);
+ $('tm').textContent=fmt(prevLap>=0?raceT-lapStart:raceT);$('bs').textContent=fmt(best);
+}
+function finish(){
+ state='menu';const r=rank(),pos=r.indexOf(P)+1;
+ $('ttl').textContent=pos==1?'Vitória!':'Corrida encerrada';
+ $('sub').textContent=TRACKS[currentTrack].name+' · Você terminou em '+pos+'º lugar. Recorde de volta: '+fmt(best);
+ $('res').innerHTML=r.map((c,i)=>`<div class="${c.player?'me':''}"><span>${i+1}. ${c.name}</span><span>${c.fin!=null?fmt(c.fin):'em pista'}</span></div>`).join('');
+ $('go').textContent='Correr de novo';$('ov').style.display='flex';
+}
+function start(){
+ setup();$('ov').style.display='none';state='count';cdT=3;
+ try{if(!ac)initAudio();ac&&ac.resume()}catch(e){}
+}
+// menu
+function seg(id,vals,cur,cb){const bs=[...$(id).children];const set=i=>{bs.forEach((b,k)=>b.classList.toggle('on',k==i));cb(i)};bs.forEach((b,i)=>b.onclick=()=>set(i));set(cur)}
+seg('sd',0,1,i=>cfg.d=i);seg('sl',0,0,i=>cfg.laps=[3,5,8][i]);
+$('track').addEventListener('change',e=>{currentTrack=e.target.value;buildTrack();loadBest();$('ttl').textContent=TRACKS[currentTrack].name;$('bs').textContent=fmt(best);setup()});
+$('go').onclick=start;
+// audio
+let ac,osc,gn,mute=false;
+function initAudio(){ac=new (window.AudioContext||window.webkitAudioContext)();osc=ac.createOscillator();gn=ac.createGain();osc.type='sawtooth';gn.gain.value=0;osc.connect(gn);gn.connect(ac.destination);osc.start()}
+// input
+const KM={ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d',ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r'};
+addEventListener('keydown',e=>{if(KM[e.key]){keys[KM[e.key]]=1;e.preventDefault()}if(e.key=='m'||e.key=='M')mute=!mute;if(e.key=='Enter'&&state=='menu')start()});
+addEventListener('keyup',e=>{if(KM[e.key])keys[KM[e.key]]=0});
+[['bl','l'],['br','r'],['bb','d'],['ba','u']].forEach(([id,k])=>{const b=$(id),on=e=>{e.preventDefault();keys[k]=1;b.classList.add('p')},off=()=>{keys[k]=0;b.classList.remove('p')};
+ b.addEventListener('pointerdown',on);['pointerup','pointercancel','pointerleave'].forEach(t=>b.addEventListener(t,off))});
+function resize(){const r=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*r;cv.height=innerHeight*r}
+addEventListener('resize',resize);resize();
+// loop
+setup();let last=performance.now();
+function loop(t){
+ const dt=Math.min(.05,(t-last)/1000);last=t;
+ update(dt);draw();
+ if(++hudT%5==0)hud();
+ if(osc){osc.frequency.value=50+P.v*.45;gn.gain.value=(mute||state=='menu')?0:.025+.02*(P.v/420)}
+ requestAnimationFrame(loop);
+}
+$('ttl').textContent=TRACKS[currentTrack].name;$('bs').textContent=fmt(best);
+requestAnimationFrame(loop);
+</script></body></html>
+ght-color:transparent;user-select:none;touch-action:none}
 html,body{margin:0;height:100%;background:#3d7a38;overflow:hidden;font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;color:var(--ink)}
 canvas#g{position:fixed;inset:0;width:100%;height:100%}
 .hud{position:fixed;background:var(--panel);border-radius:6px;padding:8px 10px;font-size:17px;line-height:1.25}
